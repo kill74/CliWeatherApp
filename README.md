@@ -1,68 +1,76 @@
-# Weather8bit — 8-Bit World Weather CLI
+# Weather8bit
 
-A retro terminal weather app written in **Go** with zero external dependencies.  
-Check the weather anywhere in the world — current conditions, 7-day forecast, hourly breakdown, and weekly stats — all rendered in glorious 8-bit ASCII style.
+A retro-styled terminal weather application written in Go with zero external dependencies. Retrieves real-time weather data for any location on Earth and renders it entirely in ASCII with ANSI colour.
+
+---
+
+## Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Flags](#flags)
+- [Live Mode](#live-mode)
+- [Battle Mode](#battle-mode)
+- [Building from Source](#building-from-source)
+- [Terminal Requirements](#terminal-requirements)
+- [Data Source](#data-source)
+- [License](#license)
 
 ---
 
 ## Features
 
-- **Current conditions** — temperature, feels-like, humidity, precipitation, pressure, visibility, wind speed & direction, cloud cover, UV index
-- **7-day forecast** — ASCII art weather icons, daily highs/lows, rain probability, wind, humidity, UV, sunrise & sunset
-- **24-hour hourly table** — full breakdown per hour with condition, temp, humidity, precip chance, rain, wind, and visibility
-- **Weekly statistics** — min, max, average, and totals for temperature, precipitation, wind, and UV
-- **Pixel font numbers** — temperature displayed in chunky ▓ block digits
-- **Colour-coded output** — temperatures, UV levels, and conditions all colour-coded for instant reading
-- **Works everywhere** — single binary, no runtime, no installer, no API key needed
+**Standard weather output**
+
+- Current conditions: temperature, apparent temperature, humidity, precipitation, atmospheric pressure, visibility, wind speed and direction, cloud cover, UV index
+- 7-day daily forecast with ASCII weather icons, temperature range, precipitation probability, wind, UV index, and sunrise/sunset times
+- 24-hour hourly forecast table
+- Weekly statistics: minimum, maximum, average, and cumulative totals
+- Temperature rendered in pixel-block digits
+- All values colour-coded by severity or range
+
+**Exclusive modes**
+
+| Mode | Flag | Description |
+|------|------|-------------|
+| Live | `--live` | Full-screen animated ASCII weather scene at ~12 fps |
+| Battle | `--battle "City"` | Real-time RPG combat between two cities using actual weather data as stats |
+
+These modes are described in detail below.
 
 ---
 
-## Download
+## Installation
 
-Pick the binary for your system:
+No installer or runtime is required. Download the binary for your platform and run it directly.
 
-| File | System |
-|------|--------|
-| `weather8bit-linux-x64` | Linux — most PCs and servers (x86_64) |
-| `weather8bit-linux-arm64` | Linux ARM — Raspberry Pi, cloud VMs |
-| `weather8bit-macos-arm64` | macOS — Apple Silicon (M1 / M2 / M3 / M4) |
-| `weather8bit-macos-intel` | macOS — Intel chip |
-| `weather8bit-windows-x64.exe` | Windows 10 / 11 (64-bit) |
+| Binary | Platform |
+|--------|----------|
+| `weather8bit-linux-x64` | Linux x86\_64 |
+| `weather8bit-linux-arm64` | Linux ARM64 (Raspberry Pi, cloud VMs) |
+| `weather8bit-macos-arm64` | macOS Apple Silicon (M1/M2/M3/M4) |
+| `weather8bit-macos-intel` | macOS Intel |
+| `weather8bit-windows-x64.exe` | Windows 10/11 64-bit |
 
----
-
-## Quick Start
-
-### Linux / macOS
+**Linux / macOS**
 
 ```bash
-# Make it executable (one time only)
 chmod +x weather8bit-linux-x64
-
-# Run it
-./weather8bit-linux-x64 "Lisbon"
-./weather8bit-linux-x64 "Tokyo" --all
-./weather8bit-linux-x64 "New York" --hourly
-./weather8bit-linux-x64 "48.8566,2.3522"
+./weather8bit-linux-x64 "London"
 ```
 
-### Windows
-
-Open **Command Prompt** or **PowerShell** and run:
+**Windows**
 
 ```bat
 weather8bit-windows-x64.exe "London"
-weather8bit-windows-x64.exe "Tokyo" --all
 ```
 
-### Optional: install globally
+**Optional: add to PATH**
 
 ```bash
-# Linux / macOS — move to PATH so you can run it from anywhere
 sudo mv weather8bit-linux-x64 /usr/local/bin/weather8bit
-
-# Then just:
-weather8bit "Porto"
+weather8bit "London"
 ```
 
 ---
@@ -70,103 +78,158 @@ weather8bit "Porto"
 ## Usage
 
 ```
-weather8bit <location> [options]
+weather8bit <location> [flags]
 ```
 
-### Arguments
+Locations can be specified as a city name, a city and country, or a latitude/longitude pair.
 
-| Argument | Description |
-|----------|-------------|
-| `"City Name"` | Search by city name (e.g. `"Berlin"`, `"São Paulo"`) |
-| `"City, Country"` | Narrow the search (e.g. `"Springfield, US"`) |
-| `"lat,lon"` | Use coordinates directly (e.g. `"38.7169,-9.1399"`) |
+```bash
+weather8bit "Tokyo"
+weather8bit "Springfield, US"
+weather8bit "38.7169,-9.1399"
+weather8bit                        # interactive prompt if no argument is given
+```
 
-### Options
+---
+
+## Flags
 
 | Flag | Short | Description |
 |------|-------|-------------|
-| `--hourly` | `-H` | Show the 24-hour hourly forecast |
-| `--stats` | `-s` | Show weekly statistics (min/max/avg/total) |
-| `--all` | `-a` | Show everything — hourly + stats |
-| `--help` | `-h` | Show usage information |
+| `--hourly` | `-H` | Show the 24-hour hourly forecast table |
+| `--stats` | `-s` | Show weekly statistics |
+| `--all` | `-a` | Show both hourly forecast and statistics |
+| `--live` | `-l` | Launch the full-screen animated ASCII scene |
+| `--battle "City"` | `-b "City"` | Run a weather battle against another city |
+| `--help` | `-h` | Print usage information |
 
-### Examples
+**Examples**
 
 ```bash
-weather8bit "Castelo Branco"
-weather8bit "Tokyo" --all
-weather8bit "New York, US" --hourly
+weather8bit "Lisbon" --all
+weather8bit "New York" --hourly
 weather8bit "Sydney" --stats
-weather8bit "51.5074,-0.1278"          # London by coordinates
-weather8bit                            # interactive mode — prompts for location
+weather8bit "51.5074,-0.1278" --all
+weather8bit "Tokyo" --live
+weather8bit "Tokyo" --battle "London"
 ```
 
 ---
 
-## Data Source
+## Live Mode
 
-All weather data comes from **[Open-Meteo](https://open-meteo.com)** — a free, open-source weather API.
+Launched with `--live`, this mode renders a full-screen animated ASCII weather scene that updates at approximately 12 frames per second. The animation reflects actual current conditions:
 
-- Completely free
-- No account needed
-- No API key
-- Covers every location on Earth
-- Updates every hour
+| Condition | Animation |
+|-----------|-----------|
+| Clear sky (day) | Rotating eight-ray sun with drifting light scatter |
+| Clear sky (night) | Twinkling star field with moon |
+| Partly cloudy | Sun with drifting cloud shapes |
+| Overcast | Heavy cloud layer scrolling across the screen |
+| Rain | Falling particle stream angled by real wind speed and direction, with ground splash |
+| Heavy rain | Dense particle stream, increased fall velocity |
+| Snow | Snowflakes drifting on a sine-wave path, accumulating at the ground line |
+| Thunderstorm | Heavy rain with periodic screen-flash lightning and a jagged animated bolt |
+| Fog | Layered sine-wave fog bands scrolling at variable speeds |
+
+A live stats panel is rendered in the lower-left corner showing current conditions. Press `Ctrl+C` to exit. The terminal is fully restored on exit.
+
+```bash
+weather8bit "Reykjavik" --live
+weather8bit "Mumbai" --live
+```
 
 ---
 
-## Build from Source
+## Battle Mode
 
-You need **Go 1.22+** installed. The app has **zero external dependencies** — only the Go standard library.
+Launched with `--battle "City"`, this mode fetches live weather for both cities and converts their meteorological data into RPG combat statistics. The two cities then fight across six rounds.
+
+**Stat derivation**
+
+| Stat | Derived from |
+|------|--------------|
+| ATK | Temperature extremity (distance from 0 C) plus UV index |
+| DEF | Atmospheric pressure |
+| SPD | Wind speed — higher SPD attacks first each round |
+| SPC | Relative humidity — determines special move probability |
+| HP | Base value adjusted by atmospheric pressure |
+
+**Combat mechanics**
+
+- The fighter with higher SPD attacks first each round
+- Damage is calculated from attacker ATK minus a fraction of defender DEF
+- Humidity-based special moves deal 1.7x damage
+- High SPD provides a small dodge chance
+- Each weather condition has its own named attack set (e.g. thunderstorm cities use `LIGHTNING STRIKE`, `VOLTAGE SHOCK`; rainy cities use `RELENTLESS DRIZZLE`, `FLOOD RUSH`)
+- A projectile animation crosses the arena on each attack
+- If no knockout occurs within six rounds, the city with more remaining HP wins
 
 ```bash
-# Clone or download weather8bit.go, then:
-go build -o weather8bit weather8bit.go
+weather8bit "Dubai" --battle "Oslo"
+weather8bit "Miami" --battle "Reykjavik"
+weather8bit "London" --battle "São Paulo"
+```
 
-# Run it
+---
+
+## Building from Source
+
+Requires Go 1.22 or later. The project has no external dependencies and uses only the Go standard library.
+
+```bash
+git clone https://github.com/your-username/weather8bit
+cd weather8bit
+go build -o weather8bit .
 ./weather8bit "Lisbon"
 ```
 
-### Cross-compile for other platforms
+**Cross-compilation**
 
 ```bash
-# Windows from Linux/macOS
-GOOS=windows GOARCH=amd64 go build -o weather8bit.exe weather8bit.go
+# Windows
+GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o weather8bit.exe .
 
-# macOS Apple Silicon from Linux
-GOOS=darwin GOARCH=arm64 go build -o weather8bit-mac weather8bit.go
+# macOS Apple Silicon
+GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o weather8bit-macos .
 
-# Linux ARM (Raspberry Pi)
-GOOS=linux GOARCH=arm64 go build -o weather8bit-pi weather8bit.go
+# Linux ARM64
+GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o weather8bit-arm64 .
 ```
+
+**Source files**
+
+| File | Contents |
+|------|----------|
+| `main.go` | Entry point, argument parsing, weather display (current, weekly, hourly, stats) |
+| `live.go` | Animated ASCII scene engine and particle system |
+| `battle.go` | RPG battle mode logic, stat derivation, arena renderer |
 
 ---
 
 ## Terminal Requirements
 
-- Any terminal that supports **ANSI colour codes** (virtually all modern terminals)
-- Recommended minimum width: **120 columns** (wider = better day panels)
-- Font: any monospace font — the app uses block characters (▓, █, ░) that are part of standard Unicode
+- ANSI colour support (standard in all modern terminals)
+- Minimum width of 120 columns recommended; wider terminals improve the 7-day panel layout
+- Live mode works best at 140 columns or wider and 40 rows or taller
+- Any monospace font — the application uses standard Unicode block characters (`▓`, `█`, `░`)
 
-### Windows note
-
-On Windows, use **Windows Terminal** or **PowerShell** for best results. The classic `cmd.exe` supports colours on Windows 10+ but may render some Unicode block characters with gaps depending on the font.
+On Windows, Windows Terminal or PowerShell is recommended. The legacy `cmd.exe` supports ANSI colours on Windows 10 and later but may render some block characters inconsistently depending on the configured font.
 
 ---
 
-## Known Limitations
+## Data Source
 
-- Requires an internet connection to fetch weather data
-- City name search depends on Open-Meteo's geocoding database — very obscure villages may not be found (use coordinates instead)
-- UV index is only available during daylight hours from the API
+Weather data is provided by [Open-Meteo](https://open-meteo.com), a free and open-source weather API.
+
+- No account or API key required
+- Global coverage
+- Hourly forecast updates
+- Licensed under CC BY 4.0
 
 ---
 
 ## License
 
-Free to use for personal and non-commercial purposes.  
-Weather data © [Open-Meteo](https://open-meteo.com) — licensed under CC BY 4.0.
-
----
-
-*Built with Go · Zero dependencies · Runs everywhere*
+This software is free for personal and non-commercial use.  
+Weather data copyright Open-Meteo, licensed under CC BY 4.0.
